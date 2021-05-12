@@ -2,6 +2,9 @@
 <div class="main-menu">
   <div class="section">
     <div class="bg-white p-8 rounded-3xl">
+      <div v-if="isSuccess" class="success">
+        <p>Email Berhasil Dikirim</p>
+      </div>
       <div class="item">
         <div class="content">
           <label class="my-label">
@@ -90,9 +93,9 @@
           <input v-model="priceThree" class="my-input" type="number">
         </div>
       </div>
-      <!-- <button @click="sendEmail()" class="cek-biaya focus:outline-none justify-end text-white font-bold py-2 px-4 rounded-full">
+      <button @click="sendEmail()" class="cek-biaya focus:outline-none justify-end text-white font-bold py-2 px-4 rounded-full">
         Kirim Email
-      </button> -->
+      </button>
     </div>
   </div>
 </div>
@@ -100,10 +103,11 @@
 
 <script>
 import { ref } from '@nuxtjs/composition-api'
+import axios from 'axios'
 export default {
   setup() {
     const fromV = ref('Admin')
-    const toV = ref('ngodingbentat.official@gmail.com')
+    const toV = ref('ngodingbentar.official@gmail.com')
     const subject = ref('Billing')
     const brand = ref('MyBrand')
     const customer = ref('Ani')
@@ -113,7 +117,7 @@ export default {
     const priceTwo = ref(300000)
     const productThree = ref('Sepatu')
     const priceThree = ref(300000)
-
+    const isSuccess = ref(false)
 
     return {
       fromV,
@@ -127,6 +131,37 @@ export default {
       priceTwo,
       productThree,
       priceThree,
+      isSuccess,
+      sendEmail
+    }
+
+    async function sendEmail(){
+      try{
+        const url = `http://www.back-end.my.id/api/v1/mailgun`
+        const data = {
+          from: fromV.value,
+          to: toV.value,
+          subject: subject.value,
+          brand: brand.value,
+          customer: customer.value,
+          productOne: productOne.value,
+          priceOne: priceOne.value,
+          productTwo: productTwo.value,
+          priceTwo: priceTwo.value,
+          productThree: productThree.value,
+          priceThree: priceThree.value,
+        }
+        const result = await axios.post(url, data)
+        if(result.data){
+          isSuccess.value = true
+          setTimeout(function(){
+            isSuccess.value = false
+          }, 5000)
+        }
+        // console.log(result)
+      }catch(err){
+        console.log(err)
+      }
     }
   },
 }
@@ -140,6 +175,9 @@ export default {
 .section {
   @apply mb-8 px-8 w-full;
   max-width: 700px;
+}
+.success {
+  @apply bg-blue-400 p-2 rounded-3xl text-center text-white mx-8 mb-4;
 }
 .item {
   @apply flex flex-wrap mb-4;
